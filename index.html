@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Session Attendance</title>
+	<style type="text/css">
+        body {
+            background-color: black;
+            color: white;
+            font-family: 'Courier New', Courier, monospace;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+        h1 {
+            margin-bottom: 30px;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+        }
+        input[type="radio"] {
+            margin-bottom: 10px;
+        }
+        input[type="button"] {
+	background-color: #573a7c;
+	color: black;
+	font-size: 16px;
+	padding: 10px 20px;
+	border-radius: 5px;
+	cursor: pointer;
+	transition: background-color 0.3s ease;
+	background-repeat: repeat-x;
+	background-size: 4px 4px;
+	box-shadow: inset 0 0 10px #b0c4de;
+}
+        input[type="button"]:hover {
+            background-color: #000000;
+            color: whi;
+        }
+    </style>
+    
+    <script src="https://apis.google.com/js/api.js"></script>
+	<script type="text/javascript">
+		function submitForm() {
+            const { google } = require('googleapis');
+const sheets = google.sheets({version: 'v4', auth});
+
+// Replace <SPREADSHEET_ID> with the actual ID of your Google Sheets file
+const spreadsheetId = '1hpd35z3RhwBl9w_yuKd1VNJHh7KkbMTpz_dq8UBKo4Q';
+
+// Replace <SHEET_NAME> with the name of the sheet you want to update
+const sheetName = 'Sheet1';
+
+// Replace <WILL_ATTEND_COLUMN> with the column name or letter of the "Will Attend" field
+const willAttendColumn = '<WILL_ATTEND_COLUMN>';
+
+// Replace <WILL_NOT_ATTEND_COLUMN> with the column name or letter of the "Will Not Attend" field
+const willNotAttendColumn = '<WILL_NOT_ATTEND_COLUMN>';
+
+// Replace <ROW_INDEX> with the index of the row you want to update
+const rowIndex = 1;
+
+async function updateSheet(attendance) {
+  try {
+    let range, value;
+    if (attendance === 'Will Attend') {
+      range = `${sheetName}!${willAttendColumn}${rowIndex}:${willAttendColumn}${rowIndex}`;
+      value = [[1]];
+    } else if (attendance === 'Will Not Attend') {
+      range = `${sheetName}!${willNotAttendColumn}${rowIndex}:${willNotAttendColumn}${rowIndex}`;
+      value = [[1]];
+    }
+
+    const request = {
+      spreadsheetId,
+      range,
+      valueInputOption: 'RAW',
+      resource: {
+        values: value
+      }
+    };
+
+    const response = await sheets.spreadsheets.values.update(request);
+    console.log(`Data updated: ${response.data}`);
+  } catch (err) {
+    console.error(`The API returned an error: ${err}`);
+  }
+}
+
+// Call the function with the corresponding value when the user selects a radio button
+const willAttendRadioButton = document.getElementById('will-attend');
+willAttendRadioButton.addEventListener('click', () => {
+  updateSheet('Will Attend');
+});
+
+const willNotAttendRadioButton = document.getElementById('will-not-attend');
+willNotAttendRadioButton.addEventListener('click', () => {
+  updateSheet('Will Not Attend');
+});
+
+		}
+	</script>
+</head>
+<body>
+	<h1>Will you attend the next session?</h1>
+	<form>
+		<input type="radio" name="attendance" value="Will attend">Will attend<br>
+		<input type="radio" name="attendance" value="Will not attend">Will not attend<br><br>
+		<input type="button" value="Submit" onclick="submitForm()">
+	</form>
+</body>
+</html>
